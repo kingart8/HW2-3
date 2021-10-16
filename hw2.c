@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <limits.h>
 
 void write_dot(FILE* fname, int** mas, int size)
 {
@@ -53,9 +52,14 @@ void checking_graph(int** mas, int size) {
 	printf("The entered graph IS simple cycle.\n");
 }
 
+void free_mas(char* mas) {
+	free(mas);
+	mas = NULL;
+	mas = (char*)malloc(sizeof(char));
+}
 
 int main(void) {
-	int width;									//пользователь вводит размер матрицы
+	int width;											//пользователь вводит размер матрицы
 	printf("Enter the width: ");
 	scanf("%d", &width);
 
@@ -63,7 +67,8 @@ int main(void) {
 	printf("\nEnter the rows of your matrix. With pressing \"ENTER\" you will change column. If do not specify a number it will be '0'.\n");
 
 	getchar();											// ловит ENTER при вводе размера
-	//создание 2мерного массива
+				
+														//создание 2мерного массива
 	int** mas = NULL;									// для создания 2мерного массива необходимо чтобы каждая ячека одномерного массива была указателем на элемент матрицы
 	mas = (int**)malloc(sizeof(*mas) * width);			// пройдя по адресу *mas получаем указатель на int
 	for (int i = 0; i < width; i++) {					// выделяя память каждому указателю мы получаем массивы в каждой ячейке памяти
@@ -71,23 +76,26 @@ int main(void) {
 	}
 
 	char* s, c;
+	s = (char*)malloc(sizeof(char));
 
-	s = (char*)malloc(sizeof(char) * CHAR_MAX);
 
-	for (int i = 0, m = 0, j = 0; j < width; j++) {					// заполняем массив числами 
+	for (int i = 0, m = 1, j = 0; j < width; j++) {		// заполняем массив числами 
 
 		while ((c = getchar()) != '\n') {
-			
-			if (c != '1' && c != '2' && c != '3' && c != '4' && c != '5' && c != '6' && c != '7' && c != '8' && c != '9' && c != '0' && c != ' ') {
+
+			if (c < '0' && c > '9' && c != ' ') {
 				printf("ERROR: the entered values is wrong!\n");
 				return -1;
 			}
 
-			if (c != ' ')
-				s[m++] = c;
+			if (c != ' ') {
+				s[m - 1] = c;
+
+				s = (char*)realloc(s, sizeof(char) * (++m));
+			}
 
 			else {
-				s[m] = '\0';
+				s[m - 1] = '\0';
 
 				if (i >= width) {
 					printf("ERROR: numders that you entered more than entered width!\n ");
@@ -96,16 +104,15 @@ int main(void) {
 
 				mas[i][j] = atoi(s);
 				i++;
-				free(s);
-				s = (char*)malloc(sizeof(char) * CHAR_MAX);
-				m = 0;
-
+				m = 1;
+				
+				free_mas(s);	
+				
 			}
 
 		}
 
-		s[m] = '\0';
-		m = 0;
+		s[m - 1] = '\0';
 
 		if (i >= width) {
 			printf("ERROR: numders that you entered more than entered width!\n ");
@@ -121,10 +128,13 @@ int main(void) {
 		}
 
 		i = 0;
-		free(s);
-		s = (char*)malloc(sizeof(char) * CHAR_MAX);
+		m = 1;
+		
+		free_mas(s);
 	}
+
 	free(s);
+	s = NULL;
 
 	//for (int j = 0; j < width; j++)											// выводим заполненный массив
 	//	for (int i = 0; i < width; i++)
@@ -142,10 +152,12 @@ int main(void) {
 
 	checking_graph(mas, width);
 
+
 	for (int i = 0; i < width; i++)
 		free(mas[i]);
 	free(mas);
 	mas = NULL;
+
 	system("dot -Tjpg graph.gv -o file.jpg");
 	return 0;
 }
