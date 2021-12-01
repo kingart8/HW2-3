@@ -37,12 +37,20 @@ void checking_graph(int** mas, int size) {
 		}
 
 	for (int k, j = 0; j < size; j++) {			// проверка на принадлежность вершине только 2-х ребер
-		if (size == 2)							// тк дальше будет условие k!=2, а в матрице 2х2 может быть только одно ребро, чтобы она была простым графом
-			break;
 		k = 0;
+		
 		for (int i = 0; i < size; i++) {
 			if (mas[i][j] == 1)
 				k++;
+		}
+		
+		if (size == 2) {							// тк дальше будет условие k!=2, а в матрице 2х2 может быть только одно ребро, чтобы она была простым графом
+			if (k == 1)
+				break;
+			else {
+				printf("The entered graph IS NOT simple cycle.\n");
+				return;
+			}
 		}
 		if (k != 2) {
 			printf("The entered graph IS NOT simple cycle.\n");
